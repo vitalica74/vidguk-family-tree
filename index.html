@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Vidguk — Family Tree</title>
+<link rel="stylesheet" href="src/css/main.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Родове дерево">
+<link rel="apple-touch-icon" href="src/assets/icons/icon-192.png">
+</head>
+<body>
+
+<div class="toolbar">
+  <select id="languageSelect" title="Мова" style="padding:8px 10px;border-radius:10px;border:1px solid #cbd5e1;background:#fff">
+    <option value="uk">Українська</option>
+    <option value="en">English</option>
+    <option value="pl">Polski</option>
+    <option value="de">Deutsch</option>
+  </select>
+  <button class="btn" onclick="resetView()" data-i18n="toolbar.center">🏠 Центр</button>
+  <button class="btn secondary" onclick="createBlankProjectWithReminder()" data-i18n="toolbar.newTree">🆕 Нове дерево</button>
+  <button class="btn secondary" onclick="triggerZipImport()" data-i18n="toolbar.importZip">📦 Імпорт ZIP</button>
+  <button class="btn secondary" onclick="triggerGedcomImport()" data-i18n="toolbar.importGed">🌿 Імпорт .ged</button>
+  <button class="btn secondary" onclick="triggerMergeZip()" data-i18n="toolbar.mergeZip">🔀 Злиття ZIP</button>
+  <button class="btn secondary" onclick="openDuplicateFinder()" data-i18n="toolbar.duplicates">🔎 Дублікати</button>
+  <button class="btn success" onclick="exportProjectZip()" data-i18n="toolbar.exportZip">🗜 Експорт ZIP</button>
+  <button class="btn warn" onclick="restoreBackupChooser()" data-i18n="toolbar.restoreBackup">♻️ Відновити резерв</button>
+  <input type="file" id="zipInput" accept=".zip,application/zip" style="display:none" onchange="importProjectZip(event)">
+  <input type="file" id="gedInput" accept=".ged,.gedcom,text/plain" style="display:none" onchange="importGEDCOM(event)">
+  <input type="file" id="mergeZipInput" accept=".zip,application/zip" style="display:none" onchange="prepareMergeZip(event)">
+  <span id="saveStateBadge" class="badge ok">✅ Локальний режим<br><small>дані й фото зберігаються у браузері; авторезерв створюється автоматично, для переносу використовуй ZIP</small></span>
+  <span id="info" style="margin-left:auto; font-size:12px; align-self:center"></span>
+</div>
+
+<div id="viewport"><div id="tree"></div></div>
+<div id="signatureBar">Створено за принципом <strong>«Відгук»</strong> — інструмент памʼяті, що лишає дані людині.</div>
+
+<div id="mainModal" class="modal-back">
+  <div class="modal">
+    <h3 id="modalTitle" style="margin-top:0">Редагувати</h3>
+    <div class="small" style="margin-bottom:6px; font-weight:600">Основне</div>
+    <input id="m_firstName" type="text" placeholder="Ім'я">
+    <input id="m_lastName" type="text" placeholder="Прізвище">
+    <input id="m_maidenName" type="text" placeholder="Дівоче прізвище">
+    <select id="m_gender">
+      <option value="male">Чоловік ♂</option>
+      <option value="female">Жінка ♀</option>
+      <option value="unknown">Інше</option>
+    </select>
+    <label for="m_partnerStatus" class="small" style="display:block; margin:6px 0 0 2px; font-weight:600">Статус зв’язку з партнером</label>
+    <select id="m_partnerStatus">
+      <option value="married">У шлюбі</option>
+      <option value="divorced">Розлучені</option>
+    </select>
+    <div id="parentFields" style="display:none; margin-top:8px; padding:10px; border:1px solid #e2e8f0; border-radius:12px; background:#f8fafc;">
+      <div class="small" style="margin-bottom:6px; font-weight:600">Батьки цієї особи</div>
+      <div class="parent-grid">
+        <div>
+          <label for="m_father" class="small">Батько</label>
+          <select id="m_father"></select>
+        </div>
+        <div>
+          <label for="m_mother" class="small">Мати</label>
+          <select id="m_mother"></select>
+        </div>
+      </div>
+      <div class="small">Можна вибрати вже наявних осіб. Якщо очистити обидва поля — зв’язок із батьками буде прибрано.</div>
+    </div>
+    <details id="advancedFields" style="margin-top:8px">
+      <summary style="cursor:pointer; font-weight:600">Розширені поля</summary>
+      <div style="margin-top:8px">
+        <label for="m_birth" class="small" style="display:block; margin:0 0 4px 2px; font-weight:600">🎂 Народження</label>
+        <input id="m_birth" type="text" placeholder="напр. 20.11.1949">
+      </div>
+      <div style="margin-top:2px">
+        <label for="m_death" class="small" style="display:block; margin:0 0 4px 2px; font-weight:600">✝️ Дата смерті</label>
+        <input id="m_death" type="text" placeholder="напр. 12.04.2021">
+      </div>
+      <div style="margin-top:2px">
+        <label for="m_deathStatus" class="small" style="display:block; margin:0 0 4px 2px; font-weight:600">🕯 Статус</label>
+        <input id="m_deathStatus" type="text" placeholder="напр. Помер">
+      </div>
+      <div style="margin-top:6px; display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+        <div id="photoPreview" style="width:48px; height:48px; border-radius:50%; background:#e2e8f0 center/cover no-repeat; border:1px solid #cbd5e1; display:flex; align-items:center; justify-content:center; color:#64748b; font-size:20px;">👤</div>
+        <button class="btn secondary" type="button" id="photoPickBtn">🖼 Фото</button>
+        <button class="btn secondary" type="button" id="photoClearBtn">🗑 Фото</button>
+        <input id="photoInput" type="file" accept="image/*" style="display:none">
+      </div>
+      <input id="m_note" type="text" placeholder="Коротка примітка">
+    </details>
+    <div id="modalContext" class="small" style="display:none; margin-top:10px;"></div>
+    <div id="modalActions" style="display:none; margin-top:10px;">
+      <div class="small" style="margin-bottom:6px; font-weight:600">Дії в дереві</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <button class="btn secondary" type="button" id="modalGotoBtn">🌳 Відкрити рід</button>
+        <button class="btn secondary" type="button" id="modalChildBtn">👶 Додати дитину</button>
+        <button class="btn secondary" type="button" id="modalPartnerBtn">❤️ Додати партнера</button>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+      <div style="display:flex; gap:8px;">
+        <button class="btn secondary" onclick="closeModal()" style="flex:1">Скасувати</button>
+        <button class="btn" id="modalSaveBtn" style="flex:1">Зберегти</button>
+      </div>
+    </div>
+    <div class="small" style="margin-top:10px">Зміни та фото зберігаються локально в браузері. Для переносу між пристроями використовуй ZIP. Наприкінці сеансу створюється внутрішній backup у браузері.</div>
+    <div id="modalDangerBottom" style="margin-top:14px; padding-top:12px; border-top:1px solid #fee2e2;">
+      <div class="small" style="margin-bottom:6px; font-weight:600; color:#991b1b;">Небезпечні дії</div>
+      <button class="btn danger" type="button" id="modalDeleteInlineBtn" style="width:100%; display:none">🗑 Видалити особу</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="trustModal" class="modal-back">
+  <div class="modal">
+    <h3 style="margin-top:0">🛡 Система довіри</h3>
+    <div id="trustStatusLine" class="trust-meta" style="margin-bottom:10px;">Перевірка збірки…</div>
+    <div id="trustBuildMeta" class="small" style="margin-bottom:10px;"></div>
+    <div class="small" style="margin-bottom:6px; font-weight:600">ETHOS</div>
+    <div id="trustEthos" class="trust-pre"></div>
+    <div class="small" style="margin-top:10px">Позначка «Оригінальна збірка» означає, що захищений блок коду збігається з еталонним підписом цієї версії. Якщо код змінено, статус зміниться на «Модифікована збірка».</div>
+    <div style="display:flex; gap:8px; margin-top:12px;">
+      <button class="btn secondary" type="button" onclick="closeTrustDialog()" style="flex:1">Закрити</button>
+      <button class="btn" type="button" onclick="copyTrustReport()" style="flex:1">Скопіювати звіт</button>
+    </div>
+  </div>
+</div>
+
+<div id="mergeModal" class="modal-back">
+  <div class="modal" style="width:560px;">
+    <h3 style="margin-top:0">🔀 Злиття дерев</h3>
+    <div id="mergeStepLine" class="trust-meta" style="margin-bottom:10px;">Етап 1: вибери ZIP іншого дерева.</div>
+    <div id="mergeSummary" class="small" style="margin-bottom:10px;"></div>
+    <div id="mergeMatches" style="max-height:45vh; overflow:auto; border:1px solid #e2e8f0; border-radius:12px; padding:8px; display:none;"></div>
+    <div class="small" style="margin-top:10px">Злиття не видаляє поточних людей. Нові люди й родини додаються, а вибрані збіги зшиваються з уже наявними особами.</div>
+    <div style="display:flex; gap:8px; margin-top:12px;">
+      <button class="btn secondary" type="button" onclick="closeMergeDialog()" style="flex:1">Закрити</button>
+      <button class="btn" type="button" id="mergeApplyBtn" onclick="applyTreeMerge()" style="flex:1; display:none">Об’єднати</button>
+    </div>
+  </div>
+</div>
+
+<div id="duplicateModal" class="modal-back">
+  <div class="modal" style="width:640px;">
+    <h3 style="margin-top:0">🔎 Пошук дублікатів</h3>
+    <div id="duplicateSummary" class="small"></div>
+    <div id="duplicateList" style="margin-top:10px; max-height:58vh; overflow:auto; border:1px solid #e2e8f0; border-radius:10px;"></div>
+    <div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
+      <button class="btn secondary" type="button" onclick="closeDuplicateFinder()" style="flex:1">Закрити</button>
+      <button class="btn" type="button" onclick="refreshDuplicateFinder()" style="flex:1">Оновити пошук</button>
+      <button class="btn success" type="button" onclick="mergeAllStrongDuplicatesFromDialog()" style="flex-basis:100%;">✅ Об'єднати всі безпечні</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="src/js/modules/i18n.js"></script>
+<script src="src/js/modules/pwa.js"></script>
+<script src="src/js/app.js"></script>
+</body>
+</html>

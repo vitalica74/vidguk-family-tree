@@ -1,0 +1,10 @@
+{
+  "toolbar.center": "🏠 Mitte",
+  "toolbar.newTree": "🆕 Neuer Baum",
+  "toolbar.importZip": "📦 ZIP importieren",
+  "toolbar.importGed": "🌿 .ged importieren",
+  "toolbar.mergeZip": "🔀 ZIP zusammenführen",
+  "toolbar.duplicates": "🔎 Duplikate",
+  "toolbar.exportZip": "🗜 ZIP exportieren",
+  "toolbar.restoreBackup": "♻️ Backup wiederherstellen"
+}

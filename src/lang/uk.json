@@ -1,0 +1,10 @@
+{
+  "toolbar.center": "🏠 Центр",
+  "toolbar.newTree": "🆕 Нове дерево",
+  "toolbar.importZip": "📦 Імпорт ZIP",
+  "toolbar.importGed": "🌿 Імпорт .ged",
+  "toolbar.mergeZip": "🔀 Злиття ZIP",
+  "toolbar.duplicates": "🔎 Дублікати",
+  "toolbar.exportZip": "🗜 Експорт ZIP",
+  "toolbar.restoreBackup": "♻️ Відновити резерв"
+}
