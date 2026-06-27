@@ -2,6 +2,10 @@
 
 Offline-first PWA for creating a family tree with GEDCOM import and ZIP backup/export.
 
+## 🌐 Live Demo
+
+https://vitalica74.github.io/vidguk-family-tree/
+
 ## Local launch
 
 ```bash
