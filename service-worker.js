@@ -12,7 +12,8 @@ const APP_SHELL = [
   "./src/lang/pl.json",
   "./src/lang/de.json",
   "./src/assets/icons/icon-192.png",
-  "./src/assets/icons/icon-512.png"
+  "./src/assets/icons/icon-512.png",
+  "./src/js/vendor/jszip.min.js"
 ];
 self.addEventListener("install", event => {
   self.skipWaiting();
