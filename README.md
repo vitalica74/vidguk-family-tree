@@ -1,58 +1,53 @@
-🇺🇦 [Українська](README.uk.md)
-
 ![Vidguk Screenshot](docs/screenshot-main.png)
 
 # 🌳 Vidguk — Family Tree
 
-> **Vidguk** is an offline-first family tree application.
->
 > **Your family history belongs to your family — not to a cloud service.**
 
-Offline-first PWA for creating, editing and preserving family trees with GEDCOM import/export and ZIP backup.
+Vidguk is an offline-first Progressive Web Application for creating, preserving and sharing family trees.
 
-## ✨ Features
+Unlike many genealogy platforms, Vidguk stores your data locally. No account is required. No subscription is required. You remain the owner of your family archive.
+
+## Features
 
 - 🌳 Family tree editor
 - 🌿 GEDCOM import
-- 📦 ZIP backup and restore
+- 📦 ZIP backup/restore
 - 🔍 Duplicate detection
-- 💾 Automatic local backups
-- 📱 Progressive Web App (PWA)
-- 🌐 Works completely offline
+- 💾 Automatic local backup
+- 📱 Progressive Web App
+- 🌐 Offline support
 
-## 🌐 Live Demo
+## Live Demo
 
 https://vitalica74.github.io/vidguk-family-tree/
 
-## 🚀 Local launch
+## Philosophy
 
-```bash
-python -m http.server 8000
-```
+Vidguk follows one simple idea:
 
-Open:
+> **Family history belongs to people.**
 
-http://127.0.0.1:8000
+No cloud lock-in.
 
-## 🛣 Roadmap
+No forced registration.
 
-- 🌍 Multi-language interface
-- 📄 PDF export
-- 🎨 Themes
-- 🤝 Community contributions
-- 📚 More genealogy tools
+Open source.
 
-## 📜 Philosophy
+## Documentation
 
-**Vidguk** is built on one simple principle:
+🇺🇦 Ukrainian documentation:
 
-> **Your family history belongs to you.**
+README.uk.md
 
-- 🔒 Data is stored locally.
-- 👤 No account is required.
-- ☁️ No cloud is required.
-- 🌍 The source code is open.
+## Roadmap
 
----
+See ROADMAP.md
 
-Created under the **Vidguk** philosophy — *a memory tool that leaves the data with the person.*
+## Contributing
+
+See CONTRIBUTING.md
+
+## License
+
+MIT License
